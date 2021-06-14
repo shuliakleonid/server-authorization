@@ -1,5 +1,7 @@
-class TokenService {
+class MailService {
+  async sendActivationMail(to, link){
 
+  };
 }
 
-module.exports = new TokenService()
+module.exports = new MailService()
