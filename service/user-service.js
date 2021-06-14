@@ -8,19 +8,20 @@ const UserDto = require('../dtos/user-dtos')
 
 class UserService {
   async registration(email, password) {
-    const candidate = await UserModel.findOne({email})
-    if (candidate) {
+    const candidate = await UserModel.findOne({email}) // user data
+    if (candidate) { // check email exist
       throw new Error(`User with this email:${email} exist`)
     }
-    const hashPassword = await bcrypt.hash(password, 3);
+    const hashPassword = await bcrypt.hash(password, 3); // hash password
     const activationLink = uuid.v4();
     const user = await UserModel.create({email, password: hashPassword, activationLink});
-    await mailService.sendActivationMail(email, activationLink);
-    const userDto = new UserDto(user);
-    const tokens = tokenService.generateTokens({...userDto});
-    await tokenService.saveToken(userDto.id, tokens.refreshToken);// send to mongoDB
+    await mailService.sendActivationMail(email, activationLink); // save user in DB
 
-    return {...tokens, users: userDto}
+    const userDto = new UserDto(user); // send mail with activation letter
+    const tokens = tokenService.generateTokens({...userDto}); // generate tokens
+    await tokenService.saveToken(userDto.id, tokens.refreshToken);// send token to mongoDB
+
+    return {...tokens, users: userDto} // return information about user and token
   }
 }
 
